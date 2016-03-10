@@ -1,0 +1,185 @@
+<?php
+
+/**---------------------------
+ * Implements hook_field_info().
+ */
+function address_field_field_info() {
+  // Returning array.
+  return array(
+    // Which is called address_field.
+    'Address field' => array(
+      // Name of our type will be 'Text field'.
+      'label' => t('Address'),
+      // Description of our type.
+      'description' => t('Address description'),
+      // Standart widget that will be dispalyed at once.
+      // After that we choose field type.
+      'default_widget' => 'address_input',
+      // Standart that will be dispayed right after we choose field type.
+      'default_formatter' => 'address_links',
+    ),
+  );
+}
+
+/**----------------------------------
+ * Implements hook_field_widget_info().
+ */
+function address_field_field_widget_info() {
+  // Returning array.
+  return array(
+    // With Address field name.
+    'address_input' => array(
+      // Our widget will be named Address field label.
+      'label' => t('Address input'),
+      // Our widget will work with a field in DB under the name Address field.
+      'field types' => array('Address field'),
+    ),
+  );
+}
+
+/**---------------------------------
+* Implements hook_field_widget_form().
+*/
+function address_field_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
+    // Default value for address value
+    $address_value = isset($items[$delta]['address']) ? $items[$delta]['address'] : '';
+
+
+// Default value for address type
+    $type_value = isset($items[$delta]['type']) ? $items[$delta]['type'] : 'sity_field';
+
+
+$element += array(
+        '#delta' => $delta,
+    );
+    $element['address'] = array();
+    $element['type'] = array();
+    switch (
+
+$instance['widget']['type']){
+        case 'address_input':
+            // text field for address
+            $element['address'] += array(
+                '#title' => t('Enter address'),
+                '#type' => 'textfield',
+                '#default_value' => $address_value,
+                '#size' => 100,
+                '#maxlength' => 255,
+            );
+            // select for choise type
+            $element['type'] += array(
+                '#title' => t('Type'),
+                '#type' => 'select',
+                '#default_value' => $type_value,
+                '#options' => array(
+                    'sity_field' => t('Sity'),
+                    'street_field' => t('Street'),
+                    'building_field' => t('Building'),
+                    'flat_field' => t('Flat'),
+                ),
+            );
+            break;
+    }
+    return $element;
+}
+
+/**
+* Implements hook_field_error().
+*/
+function address_field_field_widget_error($element, $error, $form, &$form_state) {
+    switch ($error['error']) {
+        case 'address_invalid':
+            form_error($element, $error['message']);
+            break;
+    }
+}
+
+/**------------------------------
+ * Implements hook_field_formatter_info().
+ */
+function address_field_field_formatter_info() {
+  // Returning array.
+  return array(
+    // Name of our format for code.
+    'address_text' => array(
+      // Dispalyed name of format.
+      'label' => t('Address text'),
+      // Field in DB with which our format will work.
+      'field types' => array('Address field'),
+    ),
+  );
+}
+/*--------------------------------
+* Implements hook_field_is_empty().
+*/
+function address_field_field_is_empty($item, $field) {
+    return empty($item['address']);
+}
+
+/**-------------------------------
+* Implements hook_field_validate().
+*/
+function address_field_field_validate($entity_type, $entity, $field, $instance, $langcode, $items, &$errors){
+    foreach($items as $delta => $item){
+        // Checking values depending on the field type
+        switch($item['type']){
+            case 'building_field':
+              if(!is_numeric($item['address']['building_field'])){
+      form_set_error('building_field', t('For a given field may only numeric values'));
+  }
+                break;
+            case 'flat_field':
+              if(!is_numeric($item['address']['flat_field'])){
+      form_set_error('flat_field', t('For a given field may only numeric values'));
+  }
+                break;
+        }
+    }
+}
+/**-----------------------------------
+* Implements hook_field_formatter_view() and add classes css.
+*/
+function address_field_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+    $element = array();
+    switch (
+
+        $display['type']){
+                // display same text field
+                case 'address_text':
+                    drupal_add_css(drupal_get_path('module', 'address_field') . '/css/address-field.css');
+                    foreach ($items as $delta => $item) {
+                        $address = strip_tags($item['address']);
+                        switch($item['type']){
+                            case 'sity_field':
+                                $element[$delta]['#markup'] =
+                                    '<p class="address-field-sity">' . $address . '</p>';
+                                break;
+                            case 'street_field':
+                                $element[$delta]['#markup'] =
+                                    '<p class="address-field-street">' . $address . '</p>';
+                                break;
+                            case 'building_field':
+                                $element[$delta]['#markup'] =
+                                    '<p class="address-field-building">' . $address . '</p>';
+                                break;
+                            case 'flat_field':
+                                $element[$delta]['#markup'] =
+                                    '<p class="address-field-flat">' . $address . '</p>';
+                                break;
+    }
+   }
+    break;
+  }
+return $element;
+}
+
+
+
+/*
+ * Implements hook_ctools_plugin_directory
+ */
+function address_field_ctools_plugin_directory($owner, $plugin_type) {
+  if ($owner == 'ctools' && $plugin_type == 'content_types') {
+    return 'plugins/content_types';
+  }
+}

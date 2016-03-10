@@ -1,0 +1,25 @@
+<?php
+ /**
+* Implements hook_field_schema().
+*/
+function address_field_field_schema($field){
+    $columns = array(
+        'address' => array(
+            'type' => 'varchar',
+            'length' => 255,
+            'not null' => FALSE,
+        ),
+        'type' => array(
+            'type' => 'varchar',
+            'length' => 100,
+            'not null' => FALSE,
+        )
+    );
+    $indexes = array(
+        'address' => array('address'),
+    );
+    return array(
+        'columns' => $columns,
+        'indexes' => $indexes,
+    );
+}

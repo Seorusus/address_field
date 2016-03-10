@@ -1,0 +1,17 @@
+.address-field-sity, .address-field-street, .address-field-building, .address-field-flat {
+	font-size: 25px;
+	line-height: 32px;
+	padding-left: 34px;
+}
+.address-field-sity {
+	background: #E6E6E6;
+}
+.address-field-street {
+	background: #E6E6E6;
+}
+.address-field-building {
+	background: #E6E6E6;
+}
+.address-field-flat {
+	background: #E6E6E6;
+}

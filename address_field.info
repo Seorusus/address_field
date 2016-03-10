@@ -1,0 +1,11 @@
+name = Address field
+description = Adding Address fields and display them on the node page.
+package = Address fields
+core = 7.x
+
+dependencies[] =  ctools
+dependencies[] =  panels
+
+files[] = address_field.module
+files[] = address_field.install
+
